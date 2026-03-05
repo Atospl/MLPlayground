@@ -1,0 +1,80 @@
+# MLflow Helm chart values for local minikube deployment
+# Chart: community-charts/mlflow
+
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+
+service:
+  enabled: true
+  type: NodePort
+  port: 80
+  containerPort: 5000
+
+# ---------- Backend Store (PostgreSQL) ----------
+# Connection is auto-configured by the bundled postgresql subchart below
+backendStore:
+  databaseMigration: true
+  databaseConnectionCheck: true
+
+# Bundled Bitnami PostgreSQL subchart
+postgresql:
+  enabled: true
+  architecture: standalone
+  image:
+    repository: bitnamilegacy/postgresql
+  primary:
+    service:
+      ports:
+        postgresql: 5432
+    persistence:
+      enabled: true
+      size: 2Gi
+  auth:
+    username: "mlflow"
+    password: "mlflow"
+    database: "mlflow"
+
+# ---------- Artifact Storage (PVC) ----------
+artifactRoot:
+  proxiedArtifactStorage: false
+  defaultArtifactRoot: "/mlflow/artifacts"
+  defaultArtifactsDestination: "/mlflow/artifacts"
+
+extraVolumes:
+  - name: mlflow-artifacts
+    persistentVolumeClaim:
+      claimName: mlflow-artifacts-pvc
+
+extraVolumeMounts:
+  - name: mlflow-artifacts
+    mountPath: /mlflow/artifacts
+
+# ---------- General ----------
+# No authentication for local development
+auth:
+  enabled: false
+
+# Disable telemetry
+telemetry:
+  enabled: false
+
+# Disable chart-managed logging (it forces gunicorn which breaks --allowed-hosts)
+log:
+  enabled: false
+
+# Allow connections from all hosts (needed for K8s health probes and service routing)
+extraArgs:
+  host: "0.0.0.0"
+  allowedHosts: "all"
+
+# Resources for minikube
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
