@@ -67,7 +67,8 @@ log:
 # Allow connections from all hosts (needed for K8s health probes and service routing)
 extraArgs:
   host: "0.0.0.0"
-  allowedHosts: "all"
+extraFlags:
+  - disableSecurityMiddleware
 
 # Resources for minikube
 resources:

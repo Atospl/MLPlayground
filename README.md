@@ -28,8 +28,8 @@ helm install mlflow community-charts/mlflow \
   -f k8s/mlflow-values.yaml
 
 # Access the UI
-kubectl port-forward -n mlflow svc/mlflow 5000:80
-# open http://localhost:5000
+kubectl port-forward -n mlflow svc/mlflow 8080:80
+# open http://localhost:8080
 ```
 
 ## External cluster
